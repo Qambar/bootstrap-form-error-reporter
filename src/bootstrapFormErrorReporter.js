@@ -61,11 +61,13 @@ define(function () {
         },
         //note we are passing actual field not jquery object
         report: function(field){
-            if (field instanceof jQuery) {
-                throw new Error("Please pass an html element not jQuery object");
+            if (field instanceof HTMLElement) {
+                throw new Error("The field should be an instance of HTMLElement");
             }
 
-
+            this.clearFieldError(field);
+            this.highlightFieldError(field);
+            this.validateForm();
             return this;
         }
 
