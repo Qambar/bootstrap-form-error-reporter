@@ -52,9 +52,9 @@ define(function () {
         highlightFieldError: function (field, customErrorMessage) {
             this.validateHTMLElement(field);
 
-            var fieldFormGroup = $(field).closest('.form-group');
-            var fieldLabel = (fieldFormGroup.find('label').text()).replace(/\W/g, '');
-            var errorMessage = customErrorMessage;
+            var fieldFormGroup  = $(field).closest('.form-group');
+            var fieldLabel      = this.getLabel(field);
+            var errorMessage    = customErrorMessage;
 
             fieldFormGroup.addClass('has-error');
             $("<div class='help-block'>" + errorMessage.replace("%s", fieldLabel) + "</div>").insertAfter($(field));
@@ -107,6 +107,10 @@ define(function () {
 
 
             return this;
+        },
+        getLabel: function(field) {
+            var fieldFormGroup = $(field).closest('.form-group');
+            return (fieldFormGroup.find('label').text()).replace(/\W/g, '');
         },
         isFunction: function (functionToCheck) {
             var getType = {};
