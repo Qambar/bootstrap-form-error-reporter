@@ -110,7 +110,7 @@ define(function () {
         },
         getLabel: function(field) {
             var fieldFormGroup = $(field).closest('.form-group');
-            return (fieldFormGroup.find('label').text()).replace(/\W/g, '');
+            return (fieldFormGroup.find('label').text()).replace(/\W /g, '');
         },
         isFunction: function (functionToCheck) {
             var getType = {};
