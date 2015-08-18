@@ -93,9 +93,8 @@ define(function () {
             }
 
             $(field).on('propertychange change click keyup input paste', function() {
-                var fieldValue = $(field).val();
                 _self.clearFieldError(field);
-                if (!isValidFieldTester(fieldValue)) {
+                if (!isValidFieldTester($(field))) {
                     _self.highlightFieldError(field, customErrorMessage);
                 }
                 _self.validateForm();
