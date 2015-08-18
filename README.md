@@ -19,7 +19,7 @@ or using package.json
   ..
   "devDependencies": {
     ..
-    "bootstrap-form-error-reporter": "1.4.0"
+    "bootstrap-form-error-reporter": "1.5.0"
   }
 }
 ```
@@ -50,4 +50,45 @@ bfer
 
 bfer.setFieldErrorMessage();
 
+```
+
+Advanced Usage:
+----------------
+
+You pass a field set and fieldset validator. It will use a reference field to validate the fields and display errors.
+
+```
+    var fieldSet = {
+        'referenceField' : $('#pageBackground'),
+        'compareWith': [
+            $('#pageText'),
+            $('#pageLink'),
+            $('#pageLinkHover')
+        ]
+    };
+    var validateColorContrastFieldSet = function(fieldSet) {
+        var ccc = new ColorContrastChecker();
+
+        var field1 = fieldSet.referenceField;
+        var colorA = field1.val(); //background
+        var result = [];
+
+        $.each(fieldSet.compareWith, function(i, field2) {
+            var colorB = field2.val(); //text
+            result.push(ccc.isLevelAA(colorA, colorB));
+        });
+
+        return result;
+    };
+
+
+
+    var errorMessage = "Insufficient contrast between this and %s.";
+    var bfer = new BootstrapFormErrorReporter('#theme-form .col-xs-10');
+
+    bfer.initFieldSet(
+        fieldSet,
+        validateColorContrastFieldSet,
+        errorMessage
+    );
 ```

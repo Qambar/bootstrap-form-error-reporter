@@ -21,6 +21,8 @@ define(function () {
         formContainer: '.theme-form',
         formErrorMessage: "There are errors on the form. Please fix them before continuing.",
         fallbackFieldErrorMessage: "Error on %s",
+        formErrorContainer: null,
+
         init: function () {
             var _self = this;
             $('input').on('change', function () {
@@ -30,7 +32,8 @@ define(function () {
         validateForm: function () {
             $('.js-form-flash-message').remove();
             if ($('.form-group.has-error').length > 0) {
-                $(this.formContainer).prepend(this.wrapFlashMessage(this.formErrorMessage))
+                var container = this.formErrorContainer || this.formContainer;
+                $(container).prepend(this.wrapFlashMessage(this.formErrorMessage))
             }
         },
         wrapFlashMessage: function (message) {
@@ -61,6 +64,10 @@ define(function () {
             field.setCustomValidity(errorMessage.replace("%s", fieldLabel));
 
         },
+        setFormErrorMessageContainer: function (container) {
+            this.formErrorContainer = container;
+            return this;
+        },
         setFormErrorMessage: function (errorMessage) {
             this.errorMessage = errorMessage;
             return this;
@@ -69,24 +76,51 @@ define(function () {
             this.errorMessage = errorMessage;
             return this;
         },
-        initField: function (field, isValidFieldTester, customErrorMessage) {
+        initFieldSet: function (fieldSet, isValidFieldSetTester, customErrorMessage) {
             var _self = this;
-
-            //Support for jQuery objects
-            if (field instanceof jQuery) {
-                field = field[0];
-            }
-
-            //Support for selectors
-            if (typeof field === "string") {
-                field = $(field)[0];
-            }
 
             if (typeof customErrorMessage === 'undefined') {
                 customErrorMessage = this.fallbackFieldErrorMessage;
             }
 
-            this.validateHTMLElement(field);
+            var result = isValidFieldSetTester(fieldSet);
+            if (result.length != fieldSet.compareWith.length) {
+                throw new Error("The result array should be equal to compareWith array as the operation is performed on compareWith. ");
+            }
+
+            var update = function(field) {
+                result = isValidFieldSetTester(fieldSet);
+                _self.clearFieldError(fieldSet.referenceField[0]);
+                $.each(fieldSet.compareWith, function(i, field2) {
+                    _self.clearFieldError(field2[0]);
+                    if (!result[i]) {
+                        _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage);
+                        _self.highlightFieldError(field2[0], customErrorMessage);
+                    }
+                });
+                _self.validateForm();
+            };
+
+            fieldSet.referenceField.on('propertychange change click keyup input paste', function() {
+                update();
+            });
+            $.each(fieldSet.compareWith, function(i, field2) {
+                $(field2).on('propertychange change click keyup input paste', function() {
+                    update();
+                });
+            });
+
+            update();
+
+        },
+        initField: function (field, isValidFieldTester, customErrorMessage) {
+            var _self = this;
+
+            this.validateFieldParameter();
+
+            if (typeof customErrorMessage === 'undefined') {
+                customErrorMessage = this.fallbackFieldErrorMessage;
+            }
 
             if (!this.isFunction(isValidFieldTester)) {
                 throw new Error("The second parameter should be a function against which this field should be validated");
@@ -107,6 +141,19 @@ define(function () {
 
 
             return this;
+        },
+        validateFieldParameter: function(field) {
+            //Support for jQuery objects
+            if (field instanceof jQuery) {
+                field = field[0];
+            }
+
+            //Support for selectors
+            if (typeof field === "string") {
+                field = $(field)[0];
+            }
+
+            this.validateHTMLElement(field);
         },
         getLabel: function(field) {
             var fieldFormGroup = $(field).closest('.form-group');
