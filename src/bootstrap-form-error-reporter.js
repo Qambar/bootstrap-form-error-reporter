@@ -92,13 +92,19 @@ define(function () {
                 throw new Error("The second parameter should be a function against which this field should be validated");
             }
 
-            $(field).on('propertychange change click keyup input paste', function() {
+            var updateFields = function() {
                 _self.clearFieldError(field);
                 if (!isValidFieldTester($(field))) {
                     _self.highlightFieldError(field, customErrorMessage);
                 }
                 _self.validateForm();
+            };
+
+            $(field).on('propertychange change click keyup input paste', function() {
+                updateFields();
             });
+            updateFields();
+
 
             return this;
         },
