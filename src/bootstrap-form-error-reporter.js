@@ -41,18 +41,30 @@ define(function () {
 
             return wrappedMessage;
         },
-        clearFieldError: function (field) {
+        clearFieldError: function (field, reference) {
+            if (typeof reference == "undefined"){
+                reference = "";
+            } else {
+                reference = "." + reference;
+            }
+
             this.validateHTMLElement(field);
 
             field.setCustomValidity("");
 
             var fieldFormGroup = $(field).closest('.form-group');
             fieldFormGroup
-                .find('.help-block')
+                .find('.help-block' + reference)
                 .remove();
-            fieldFormGroup.removeClass('has-error');
+            if (fieldFormGroup.find('.help-block').length == 0) {
+                fieldFormGroup.removeClass('has-error');
+            }
         },
-        highlightFieldError: function (field, customErrorMessage) {
+        highlightFieldError: function (field, customErrorMessage, reference) {
+            if (typeof reference == "undefined"){
+                reference = "";
+            }
+
             this.validateHTMLElement(field);
 
             var fieldFormGroup  = $(field).closest('.form-group');
@@ -60,7 +72,7 @@ define(function () {
             var errorMessage    = customErrorMessage;
 
             fieldFormGroup.addClass('has-error');
-            $("<div class='help-block'>" + errorMessage.replace("%s", fieldLabel) + "</div>").insertAfter($(field));
+            $("<div class='help-block "+reference+"'>" + errorMessage.replace("%s", fieldLabel) + "</div>").insertAfter($(field));
             field.setCustomValidity(errorMessage.replace("%s", fieldLabel));
 
         },
@@ -88,16 +100,20 @@ define(function () {
                 throw new Error("The result array should be equal to compareWith array as the operation is performed on compareWith. ");
             }
 
-            var update = function(field) {
+            var update = function() {
                 result = isValidFieldSetTester(fieldSet);
                 _self.clearFieldError(fieldSet.referenceField[0]);
+
+                var referenceFieldLabel     = _self.getLabel(fieldSet.referenceField[0]);
+                var referenceClass          = _self.getReferenceClass(referenceFieldLabel);
+
                 $.each(fieldSet.compareWith, function(i, field2) {
-                    _self.clearFieldError(field2[0]);
+                    _self.clearFieldError(field2[0], referenceClass);
                     if (!result[i]) {
                         var field2Label = _self.getLabel(field2[0]);
 
-                        _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage.replace("%s", field2Label));
-                        _self.highlightFieldError(field2[0], customErrorMessage);
+                        _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage.replace("%s", field2Label), referenceClass);
+                        _self.highlightFieldError(field2[0], customErrorMessage.replace("%s", referenceFieldLabel), referenceClass);
                     }
                 });
                 _self.validateForm();
@@ -169,6 +185,9 @@ define(function () {
             if (!(field instanceof HTMLElement)) {
                 throw new Error("The field or first parameter should be an instance of HTMLElement");
             }
+        },
+        getReferenceClass: function(str) {
+            return "js-" + str.replace(/\W/g, '-');
         }
     };
 

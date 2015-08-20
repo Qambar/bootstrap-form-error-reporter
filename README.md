@@ -19,7 +19,7 @@ or using package.json
   ..
   "devDependencies": {
     ..
-    "bootstrap-form-error-reporter": "1.6.0"
+    "bootstrap-form-error-reporter": "1.7.0"
   }
 }
 ```
