@@ -94,7 +94,9 @@ define(function () {
                 $.each(fieldSet.compareWith, function(i, field2) {
                     _self.clearFieldError(field2[0]);
                     if (!result[i]) {
-                        _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage);
+                        var field2Label = _self.getLabel(field2[0]);
+
+                        _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage.replace("%s", field2Label));
                         _self.highlightFieldError(field2[0], customErrorMessage);
                     }
                 });
