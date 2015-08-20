@@ -88,7 +88,7 @@ define(function () {
             this.errorMessage = errorMessage;
             return this;
         },
-        initFieldSet: function (fieldSet, isValidFieldSetTester, customErrorMessage) {
+        initFieldSet: function (fieldSet, isValidFieldSetTester, customErrorMessage, runValidation) {
             var _self = this;
 
             if (typeof customErrorMessage === 'undefined') {
@@ -100,36 +100,37 @@ define(function () {
                 throw new Error("The result array should be equal to compareWith array as the operation is performed on compareWith. ");
             }
 
-            var update = function() {
-                result = isValidFieldSetTester(fieldSet);
-                _self.clearFieldError(fieldSet.referenceField[0]);
-
-                var referenceFieldLabel     = _self.getLabel(fieldSet.referenceField[0]);
-                var referenceClass          = _self.getReferenceClass(referenceFieldLabel);
-
-                $.each(fieldSet.compareWith, function(i, field2) {
-                    _self.clearFieldError(field2[0], referenceClass);
-                    if (!result[i]) {
-                        var field2Label = _self.getLabel(field2[0]);
-
-                        _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage.replace("%s", field2Label), referenceClass);
-                        _self.highlightFieldError(field2[0], customErrorMessage.replace("%s", referenceFieldLabel), referenceClass);
-                    }
-                });
-                _self.validateForm();
-            };
-
             fieldSet.referenceField.on('propertychange change click keyup input paste', function() {
-                update();
+                _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
             });
             $.each(fieldSet.compareWith, function(i, field2) {
                 $(field2).on('propertychange change click keyup input paste', function() {
-                    update();
+                    _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
                 });
             });
 
-            update();
+            if (runValidation) {
+                _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
+            }
+        },
+        runFieldSetValidation: function(fieldSet, isValidFieldSetTester, customErrorMessage) {
+            var _self = this;
+            var result = isValidFieldSetTester(fieldSet);
+            _self.clearFieldError(fieldSet.referenceField[0]);
 
+            var referenceFieldLabel     = _self.getLabel(fieldSet.referenceField[0]);
+            var referenceClass          = _self.getReferenceClass(referenceFieldLabel);
+
+            $.each(fieldSet.compareWith, function(i, field2) {
+                _self.clearFieldError(field2[0], referenceClass);
+                if (!result[i]) {
+                    var field2Label = _self.getLabel(field2[0]);
+
+                    _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage.replace("%s", field2Label), referenceClass);
+                    _self.highlightFieldError(field2[0], customErrorMessage.replace("%s", referenceFieldLabel), referenceClass);
+                }
+            });
+            _self.validateForm();
         },
         initField: function (field, isValidFieldTester, customErrorMessage) {
             var _self = this;
@@ -188,6 +189,9 @@ define(function () {
         },
         getReferenceClass: function(str) {
             return "js-" + str.replace(/\W/g, '-');
+        },
+        isFormValid: function() {
+            return $(this.formContainer).find('.has-error').length == 0;
         }
     };
 
