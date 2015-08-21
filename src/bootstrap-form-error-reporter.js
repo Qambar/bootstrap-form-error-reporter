@@ -95,6 +95,12 @@ define(function () {
                 customErrorMessage = this.fallbackFieldErrorMessage;
             }
 
+            if (typeof fieldSet.compareWith === 'undefined' || typeof fieldSet.referenceField === 'undefined') {
+                throw new Error("Fieldset should have properties `compareWith` and `referenceField`");
+            }
+
+            fieldSet = this.convertToJqueryObject(fieldSet);
+
             var result = isValidFieldSetTester(fieldSet);
             if (result.length != fieldSet.compareWith.length) {
                 throw new Error("The result array should be equal to compareWith array as the operation is performed on compareWith. ");
@@ -112,6 +118,19 @@ define(function () {
             if (runValidation) {
                 _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
             }
+        },
+        convertToJqueryObject: function(fieldSet) {
+            if (typeof fieldSet.referenceField === "string") {
+                fieldSet.referenceField = $(fieldSet.referenceField);
+            }
+            //Convert Fieldset to jQuery objects
+            $.each(fieldSet.compareWith, function(i, field2) {
+                if (typeof field2 === "string") {
+                    fieldSet[i] = $(field2);
+                }
+            });
+
+            return fieldSet;
         },
         runFieldSetValidation: function(fieldSet, isValidFieldSetTester, customErrorMessage) {
             var _self = this;
