@@ -11,29 +11,44 @@ define(function () {
 
     "use strict";
 
-    var BootstrapFormErrorReporting = function(formContainer) {
-        this.formContainer = formContainer;
+    var BootstrapFormErrorReporting = function(scope, highlightObj) {
+        if (typeof scope !== 'undefined'){
+            this.scope = scope;
+        }
+
+        if (typeof highlightObj !== 'undefined') {
+            this.highlightObj = highlightObj;
+        }
+
         this.init();
     };
 
     BootstrapFormErrorReporting.prototype = {
 
-        formContainer: '.theme-form',
-        formErrorMessage: "There are errors on the form. Please fix them before continuing.",
+        scope: '.theme-form',
+        scopeErrorMessage: "There are errors on the form. Please fix them before continuing.",
         fallbackFieldErrorMessage: "Error on %s",
-        formErrorContainer: null,
+        scopeErrorContainer: null,
+        highlightObj: null,
 
         init: function () {
             var _self = this;
-            $('input').on('change', function () {
+            $(this.scope + ' input').on('change', function () {
                 _self.validateForm();
             });
         },
         validateForm: function () {
-            $('.js-form-flash-message').remove();
-            if ($('.form-group.has-error').length > 0) {
-                var container = this.formErrorContainer || this.formContainer;
-                $(container).prepend(this.wrapFlashMessage(this.formErrorMessage))
+            if (this.highlightObj) {
+                $(this.highlightObj.highlightElement).removeClass(this.highlightObj.highlightClass);
+                if (!this.isScopeValid()) {
+                    $(this.highlightObj.highlightElement).addClass(this.highlightObj.highlightClass);
+                }
+            } else {
+                $('.js-form-flash-message').remove();
+                if ($('.form-group.has-error').length > 0) {
+                    var container = this.scopeErrorContainer || this.scope;
+                    $(container).prepend(this.wrapFlashMessage(this.scopeErrorMessage))
+                }
             }
         },
         wrapFlashMessage: function (message) {
@@ -48,7 +63,7 @@ define(function () {
                 reference = "." + reference;
             }
 
-            this.validateHTMLElement(field);
+            field = this.convertToHTMLElement(field);
 
             field.setCustomValidity("");
 
@@ -65,7 +80,7 @@ define(function () {
                 reference = "";
             }
 
-            this.validateHTMLElement(field);
+            field = this.convertToHTMLElement(field);
 
             var fieldFormGroup  = $(field).closest('.form-group');
             var fieldLabel      = this.getLabel(field);
@@ -77,7 +92,7 @@ define(function () {
 
         },
         setFormErrorMessageContainer: function (container) {
-            this.formErrorContainer = container;
+            this.scopeErrorContainer = container;
             return this;
         },
         setFormErrorMessage: function (errorMessage) {
@@ -154,7 +169,7 @@ define(function () {
         initField: function (field, isValidFieldTester, customErrorMessage) {
             var _self = this;
 
-            this.validateFieldParameter();
+            field = this.convertToHTMLElement(field);
 
             if (typeof customErrorMessage === 'undefined') {
                 customErrorMessage = this.fallbackFieldErrorMessage;
@@ -180,19 +195,6 @@ define(function () {
 
             return this;
         },
-        validateFieldParameter: function(field) {
-            //Support for jQuery objects
-            if (field instanceof jQuery) {
-                field = field[0];
-            }
-
-            //Support for selectors
-            if (typeof field === "string") {
-                field = $(field)[0];
-            }
-
-            this.validateHTMLElement(field);
-        },
         getLabel: function(field) {
             var fieldFormGroup = $(field).closest('.form-group');
             return (fieldFormGroup.find('label').text()).replace(/\W /g, '');
@@ -209,8 +211,23 @@ define(function () {
         getReferenceClass: function(str) {
             return "js-" + str.replace(/\W/g, '-');
         },
-        isFormValid: function() {
-            return $(this.formContainer).find('.has-error').length == 0;
+        convertToHTMLElement: function(field){
+            //Support for jQuery objects
+            if (field instanceof jQuery) {
+                field = field[0];
+            }
+
+            //Support for selectors
+            if (typeof field === "string") {
+                field = $(this.scope + " " + field)[0];
+            }
+
+            this.validateHTMLElement(field);
+
+            return field;
+        },
+        isScopeValid: function() {
+            return $(this.scope).find('.has-error').length == 0;
         }
     };
 

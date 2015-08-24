@@ -2,7 +2,7 @@
 
 This plugin takes the validation responsibility from the application and puts a hook to validate form and fields using bootstrap css classes.
 
-![Alt text](screenshot.png?raw=true "Demo")
+![Demo](screenshot.png)
 
 
 Installation:
@@ -19,7 +19,7 @@ or using package.json
   ..
   "devDependencies": {
     ..
-    "bootstrap-form-error-reporter": "1.9.0"
+    "bootstrap-form-error-reporter": "1.10.0"
   }
 }
 ```
