@@ -19,7 +19,7 @@ or using package.json
   ..
   "devDependencies": {
     ..
-    "bootstrap-form-error-reporter": "1.10.0"
+    "bootstrap-form-error-reporter": "1.12.0"
   }
 }
 ```
@@ -60,11 +60,7 @@ You pass a field set and fieldset validator. It will use a reference field to va
 ```
     var fieldSet = {
         'referenceField' : $('#pageBackground'),
-        'compareWith': [
-            $('#pageText'),
-            $('#pageLink'),
-            $('#pageLinkHover')
-        ]
+        'compareWith': $('#pageText #pageLink #pageLinkHover').toArray() //Array of HTMLElements
     };
     var validateColorContrastFieldSet = function(fieldSet) {
         var ccc = new ColorContrastChecker();

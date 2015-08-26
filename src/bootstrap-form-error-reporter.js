@@ -87,7 +87,7 @@ define(function () {
             var errorMessage    = customErrorMessage;
 
             fieldFormGroup.addClass('has-error');
-            $("<div class='help-block "+reference+"'>" + errorMessage.replace("%s", fieldLabel) + "</div>").insertAfter($(field));
+            fieldFormGroup.append("<div class='help-block "+reference+"'>" + errorMessage.replace("%s", fieldLabel) + "</div>")
             field.setCustomValidity(errorMessage.replace("%s", fieldLabel));
 
         },
@@ -106,6 +106,7 @@ define(function () {
         initFieldSet: function (fieldSet, isValidFieldSetTester, customErrorMessage, runValidation) {
             var _self = this;
 
+            //Validating user has given us right inputs
             if (typeof customErrorMessage === 'undefined') {
                 customErrorMessage = this.fallbackFieldErrorMessage;
             }
@@ -114,20 +115,21 @@ define(function () {
                 throw new Error("Fieldset should have properties `compareWith` and `referenceField`");
             }
 
-            fieldSet = this.convertToJqueryObject(fieldSet);
+            this.validateHTMLElement(fieldSet.referenceField);
+            $.map(fieldSet.compareWith, this.validateHTMLElement);
 
             var result = isValidFieldSetTester(fieldSet);
             if (result.length != fieldSet.compareWith.length) {
                 throw new Error("The result array should be equal to compareWith array as the operation is performed on compareWith. ");
             }
+            //
 
-            fieldSet.referenceField.on('propertychange change click keyup input paste', function() {
+            $(fieldSet.referenceField).on('propertychange change click keyup input paste', function() {
                 _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
             });
-            $.each(fieldSet.compareWith, function(i, field2) {
-                $(field2).on('propertychange change click keyup input paste', function() {
-                    _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
-                });
+
+            $(fieldSet.compareWith).on('propertychange change click keyup input paste', function() {
+                _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
             });
 
             if (runValidation) {
@@ -141,7 +143,7 @@ define(function () {
             //Convert Fieldset to jQuery objects
             $.each(fieldSet.compareWith, function(i, field2) {
                 if (typeof field2 === "string") {
-                    fieldSet[i] = $(field2);
+                    fieldSet.compareWith[i] = $(field2);
                 }
             });
 
@@ -150,18 +152,18 @@ define(function () {
         runFieldSetValidation: function(fieldSet, isValidFieldSetTester, customErrorMessage) {
             var _self = this;
             var result = isValidFieldSetTester(fieldSet);
-            _self.clearFieldError(fieldSet.referenceField[0]);
+            _self.clearFieldError(fieldSet.referenceField);
 
-            var referenceFieldLabel     = _self.getLabel(fieldSet.referenceField[0]);
+            var referenceFieldLabel     = _self.getLabel(fieldSet.referenceField);
             var referenceClass          = _self.getReferenceClass(referenceFieldLabel);
 
             $.each(fieldSet.compareWith, function(i, field2) {
-                _self.clearFieldError(field2[0], referenceClass);
+                _self.clearFieldError(field2, referenceClass);
                 if (!result[i]) {
-                    var field2Label = _self.getLabel(field2[0]);
+                    var field2Label = _self.getLabel(field2);
 
-                    _self.highlightFieldError(fieldSet.referenceField[0], customErrorMessage.replace("%s", field2Label), referenceClass);
-                    _self.highlightFieldError(field2[0], customErrorMessage.replace("%s", referenceFieldLabel), referenceClass);
+                    _self.highlightFieldError(fieldSet.referenceField, customErrorMessage.replace("%s", field2Label), referenceClass);
+                    _self.highlightFieldError(field2, customErrorMessage.replace("%s", referenceFieldLabel), referenceClass);
                 }
             });
             _self.validateForm();
@@ -205,7 +207,7 @@ define(function () {
         },
         validateHTMLElement: function(field) {
             if (!(field instanceof HTMLElement)) {
-                throw new Error("The field or first parameter should be an instance of HTMLElement");
+                throw new Error("The field should be an instance of HTMLElement. Given "+ field.class, field);
             }
         },
         getReferenceClass: function(str) {
@@ -219,6 +221,8 @@ define(function () {
 
             //Support for selectors
             if (typeof field === "string") {
+
+                console.log(field);
                 field = $(this.scope + " " + field)[0];
             }
 
