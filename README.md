@@ -19,7 +19,7 @@ or using package.json
   ..
   "devDependencies": {
     ..
-    "bootstrap-form-error-reporter": "1.12.0"
+    "bootstrap-form-error-reporter": "1.13.0"
   }
 }
 ```
@@ -28,6 +28,11 @@ Then do `npm install`
 
 Usage:
 ------
+
+1. You can simply use it by providing a selector, validator and message.
+
+![Demo](screenshot.png)
+
 
 ```
 var emailTester = function(val) {
@@ -51,6 +56,36 @@ bfer
 bfer.setFieldErrorMessage();
 
 ```
+
+However, this displays a message on top of the form and makes the form jump.
+
+
+2. So we have another solution in which we can display error by adding a highlight error class on respective element.
+See below the screenshot shows panel boxes which become red when there is an error on the field.
+
+![Demo](screenshot-panels.png)
+
+
+```
+
+//You specify the validators as in step 1
+
+ ...
+
+// Then instead of targeting the whole form you target a panel or group of fields container
+
+var bfer = new BootstrapFormErrorReporter("#my-fields-container-panel", {
+    highlightElement: ".scope1-highlight",
+    highlightClass: "panel-danger"
+});
+bfer
+            .initField('.email', emailTester, emailErrorMessage)
+            .initField('.password', passwordTester);
+
+```
+
+For full working example see [example2](example/example2.html)
+
 
 Advanced Usage:
 ----------------

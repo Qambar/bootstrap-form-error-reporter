@@ -25,8 +25,10 @@
                     <label class="control-label col-sm-2">Password:</label>
                     <div class="col-sm-5">
                         <input type="password" class="form-control password" placeholder="Enter password">
+                        The password should be at least one number, one lowercase and one uppercase letter and at least six characters.
                     </div>
                 </div>
+
             </div>
 
             <div class="panel panel-default scope2">
@@ -44,6 +46,7 @@
                     <label class="control-label col-sm-2">Password:</label>
                     <div class="col-sm-5">
                         <input type="password" class="form-control password" placeholder="Enter password">
+                        The password should be at least one number, one lowercase and one uppercase letter and at least six characters.
                     </div>
                 </div>
             </div>
@@ -63,6 +66,7 @@
                     <label class="control-label col-sm-2">Password:</label>
                     <div class="col-sm-5">
                         <input type="password" class="form-control password" placeholder="Enter password">
+                        The password should be at least one number, one lowercase and one uppercase letter and at least six characters.
                     </div>
                 </div>
             </div>
@@ -121,7 +125,6 @@
         };
 
         var emailErrorMessage       = "Invalid %s, please check if you are using the right email syntax.";
-        var passwordErrorMessage    = "The %s should be at least one number, one lowercase and one uppercase letter and at least six characters.";
 
         //Scope 1
         var bfer = new BootstrapFormErrorReporter(".scope1", {
@@ -130,7 +133,7 @@
         });
         bfer
             .initField('.email', emailTester, emailErrorMessage)
-            .initField('.password', passwordTester, passwordErrorMessage);
+            .initField('.password', passwordTester);
 
         //Scope 2
         var bfer = new BootstrapFormErrorReporter(".scope2", {
@@ -139,7 +142,7 @@
         });
         bfer
                 .initField('.email', emailTester, emailErrorMessage)
-                .initField('.password', passwordTester, passwordErrorMessage);
+                .initField('.password', passwordTester);
 
 
         //Scope 3
@@ -149,7 +152,7 @@
         });
         bfer
                 .initField('.email', emailTester, emailErrorMessage)
-                .initField('.password', passwordTester, passwordErrorMessage);
+                .initField('.password', passwordTester);
 
 
 
