@@ -119,10 +119,13 @@ define(function () {
             $.map(fieldSet.compareWith, this.validateHTMLElement);
 
             var result = isValidFieldSetTester(fieldSet);
+            if (typeof result === 'undefined') {
+                throw new Error("Please check your validator as it is returning undefined.");
+            }
+
             if (result.length != fieldSet.compareWith.length) {
                 throw new Error("The result array should be equal to compareWith array as the operation is performed on compareWith. ");
             }
-            //
 
             $(fieldSet.referenceField).on('propertychange change click keyup input paste', function() {
                 _self.runFieldSetValidation(fieldSet, isValidFieldSetTester, customErrorMessage);
@@ -232,7 +235,7 @@ define(function () {
         },
         isScopeValid: function() {
             return $(this.scope).find('.has-error').length == 0;
-        }
+        },
     };
 
     return BootstrapFormErrorReporting;
